@@ -1,0 +1,6 @@
+{
+  "appId": "com.waveiq.app",
+  "appName": "WAVEIQ",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}
