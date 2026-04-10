@@ -32,6 +32,7 @@ const EQ_PRESETS = [
 
 export default function App() {
   const [state, setState] = useState(appStore.getState());
+  const [tick, setTick] = useState(0); // For force update and polling
   const [viewMode, setViewMode] = useState("carousel"); 
   const [showVisualizer, setShowVisualizer] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -40,7 +41,18 @@ export default function App() {
   const [aiAnalysis, setAiAnalysis] = useState("");
 
   useEffect(() => {
-    return appStore.subscribe(() => setState(appStore.getState()));
+    const unsubscribe = appStore.subscribe(() => setState(appStore.getState()));
+    
+    // Debug polling every 500ms
+    const interval = setInterval(() => {
+      setTick(t => t + 1);
+      setState(appStore.getState());
+    }, 500);
+    
+    return () => {
+      unsubscribe();
+      clearInterval(interval);
+    };
   }, []);
 
   const { activeStation, isPlaying, isLoading, appMode, equalizerSettings } = state;
@@ -234,7 +246,7 @@ export default function App() {
                       else if (isNext) { xPos = "65%"; scale = 0.85; zIndex = 20; }
 
                       return (
-                        <div key={station.id} onClick={() => handleStationSelect(index)} className="absolute transition-all duration-700 ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer" style={{ transform: `translateX(${xPos}) scale(${scale})`, opacity: opacity, zIndex: zIndex }}>
+                        <div key={station.id} onClick={() => handleStationSelect(index)} className="absolute transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] cursor-pointer" style={{ transform: `translateX(${xPos}) scale(${scale})`, opacity: opacity, zIndex: zIndex }}>
                           <div className={`w-[260px] h-[360px] rounded-[3rem] bg-gradient-to-br ${station.color} p-[1px] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)]`}>
                             <div className="w-full h-full bg-[#18181b]/95 backdrop-blur-xl rounded-[2.9rem] flex flex-col overflow-hidden relative">
                               <div className="relative h-[170px] w-full shrink-0">
